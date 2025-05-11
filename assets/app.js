@@ -1,5 +1,5 @@
 let device;
-const token_url = 'https://js-sdk2-browser-phone-7481-dev.twil.io/token';
+const token_url = '/token';
 async function initializeDevice() {
   try {
     const response = await fetch(token_url);
