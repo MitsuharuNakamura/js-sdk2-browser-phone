@@ -1,8 +1,7 @@
 let device;
 const token_url = '/token';
 async function initializeDevice() {
-  updateStatus("初期化処理開始");
-  console.log("初期化処理開始");
+  updateStatus("デバイスの初期化処理");
   try {
     const response = await fetch(token_url);
     const data = await response.json();
@@ -17,30 +16,32 @@ async function initializeDevice() {
     });
 
     device.on("registered", function () {
-      console.log("Registered.")
+      updateStatus("初期化処理完了");
+
     });
     device.register();
 
   } catch (err) {
     console.error('Failed to initialize device', err);
     updateStatus('初期化失敗');
-  }
+  } 
 }
 
+// Outbound Callの処理
 async function makeCall() {
   const number = document.getElementById('phone-number').value;
   if (device) {
-    const call = await device.connect({ params: { To: number } }); 
+    const call = await device.connect({ params: { To: number} }); 
     // callオブジェクトにイベントリスナーを設定
-    call.on('accept', call => {
-      updateStatus('通話を開始');
-    });
     call.on('ringing', hasEarlyMedia => {
-      updateStatus('呼び出し中・・・');
+      updateStatus('呼び出しを開始');
       if (!hasEarlyMedia) {
         //音声をカスタマイズする関数を追加する
       }
-    });    
+    }); 
+    call.on('accept', call => { //answerOnBridge: trueをTwiMLに入れることで、ちゃんと相手が出た時にイベントが発生する
+      updateStatus('通話開始');
+    });
     call.on('cancel', () => {
       updateStatus('通話がキャンセルされました');
     });
@@ -50,7 +51,10 @@ async function makeCall() {
     call.on('disconnect', () => {
       updateStatus('通話が切断されました');
     });
-
+    call.on('error', (error) => {
+      console.log('An error has occurred: ', error);
+      updateStatus('エラーが発生しました。');
+    });
   }
 }
 

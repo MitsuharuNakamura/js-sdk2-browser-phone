@@ -11,7 +11,8 @@ exports.handler = function(context, event, callback) {
     }
   
     const dial = twiml.dial({
-      callerId: context.CALLER_ID
+      callerId: context.CALLER_ID,
+      answerOnBridge: true
     });
   
     dial.number(event.To);
