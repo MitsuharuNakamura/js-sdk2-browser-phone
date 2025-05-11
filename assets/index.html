@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Twilio ブラウザ電話 (SDK 2.12.4)</title>
+</head>
+<body>
+  <h1>Twilio ブラウザ電話 (SDK 2.12.4)</h1>
+
+  <div>
+    <input id="phone-number" type="text" placeholder="相手の電話番号">
+    <button onclick="makeCall()">発信</button>
+    <button onclick="hangUp()">切断</button>
+    <button onclick="refreshToken()">トークン更新</button>
+  </div>
+
+  <div id="status"></div>
+
+  <!-- ローカルAssetsに置いたSDKを読み込む -->
+  <script src="/twilio.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
