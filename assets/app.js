@@ -21,6 +21,27 @@ async function initializeDevice() {
     });
     device.register();
 
+    // Incomoing Callの処理は、UI側がなど未実装なんで、将来的に追加する予定 -- ここから
+    device.on("incoming", (call) => {
+      updateStatus("📲 着信があります");
+      // UIで受話・拒否ボタンを表示させる処理など（任意）
+      // showIncomingCallUI(call);      
+      // 自分が応答したら（＝通話開始）
+      call.on("accept", () => {
+        updateStatus("通話開始（自分が応答）");
+      });
+      // 相手が切断 or 自分が切断した場合
+      call.on("disconnect", () => {
+        updateStatus("通話終了");
+      });
+      // エラー処理
+      call.on("error", (error) => {
+        console.error("通話エラー:", error);
+        updateStatus("通話中にエラーが発生しました");
+      });
+    });
+    // Incomoing Callの処理は、UI側がなど未実装なんで、将来的に追加する予定　 -- ここまで
+
   } catch (err) {
     console.error('Failed to initialize device', err);
     updateStatus('初期化失敗');
