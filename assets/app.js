@@ -1,6 +1,8 @@
 let device;
 const token_url = '/token';
 async function initializeDevice() {
+  updateStatus("初期化処理開始");
+  console.log("初期化処理開始");
   try {
     const response = await fetch(token_url);
     const data = await response.json();
@@ -14,36 +16,10 @@ async function initializeDevice() {
       codecPreferences: ['opus', 'pcmu'],
     });
 
-    device.on('ready', () => {
-      updateStatus('デバイス準備完了');
+    device.on("registered", function () {
+      console.log("Registered.")
     });
-
-    device.on('registered', device => {
-      console.log('デバイスが受電の準備ができました')
-    });
-    
-    device.on('error', (error) => {
-      console.error('Device Error:', error);
-      updateStatus(`エラー: ${error.message}`);
-    });
-
-    device.on('incoming', (connection) => {
-      if (confirm('着信があります。応答しますか？')) {
-        connection.accept();
-        updateStatus('通話中');
-      } else {
-        connection.reject();
-        updateStatus('着信拒否');
-      }
-    });
-
-    device.on('connect', () => {    
-      updateStatus('通話中');
-    });
-
-    device.on('disconnect', () => {
-      updateStatus('切断されました');
-    });
+    device.register();
 
   } catch (err) {
     console.error('Failed to initialize device', err);
@@ -51,10 +27,30 @@ async function initializeDevice() {
   }
 }
 
-function makeCall() {
+async function makeCall() {
   const number = document.getElementById('phone-number').value;
   if (device) {
-    device.connect({ params: { To: number } }); 
+    const call = await device.connect({ params: { To: number } }); 
+    // callオブジェクトにイベントリスナーを設定
+    call.on('accept', call => {
+      updateStatus('通話を開始');
+    });
+    call.on('ringing', hasEarlyMedia => {
+      updateStatus('呼び出し中・・・');
+      if (!hasEarlyMedia) {
+        //音声をカスタマイズする関数を追加する
+      }
+    });    
+    call.on('cancel', () => {
+      updateStatus('通話がキャンセルされました');
+    });
+    call.on('reject', () => {
+      updateStatus('通話が拒否されました。');
+     });
+    call.on('disconnect', () => {
+      updateStatus('通話が切断されました');
+    });
+
   }
 }
 
